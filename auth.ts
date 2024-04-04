@@ -36,15 +36,20 @@ export const {
     }
   },
   callbacks: {
-    // async signIn({ user }) {
-    //   const existingUser = await getUserById(user.id || '');
+    async signIn({ user, account }) {
+      console.log({
+        user,
+        account,
+      })
 
-    //   if (!existingUser || !existingUser.emailVerified) {
-    //     return false
-    //   }
+      if (account?.provider !== "credentials") return true
 
-    //   return true
-    // },
+      const existingUser = await getUserById(user.id || '');
+
+      if (!existingUser?.emailVerified) return false
+
+      return true
+    },
     async session({ token, session }) {
       console.log({
         sessionToken: token
