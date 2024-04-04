@@ -19,6 +19,8 @@ const NewVerficationForm = () => {
   const token = searchParams.get("token");
 
   const onSubmit  = useCallback(() => {
+    if (success || error ) return;
+
     if (!token) {
       setError("Missing token!")
       return
@@ -32,7 +34,7 @@ const NewVerficationForm = () => {
     .catch(() => {
       setError("Something went wrong!")
     })
-  }, [token]);
+  }, [token, success, error]);
 
   useEffect(() => {
     
@@ -56,9 +58,11 @@ const NewVerficationForm = () => {
         <FormSuccess 
           message={success}
         />
-        <FormError 
-          message={error}
-        />
+        {!success && (
+          <FormError 
+            message={error}
+          />
+        )}
       </div>
 
     </CardWrapper>
