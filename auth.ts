@@ -6,17 +6,8 @@ import { db } from "./lib/db"
 import authConfig from "./auth.config"
 import { UserRole } from "@prisma/client"
 import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation"
+import { ExtendedUser } from "./next-auth"
 
-
-type ExtendedUser = DefaultSession["user"] & {
-  role: UserRole
-};
-
-declare module "next-auth" {
-  interface Session {
-    user: ExtendedUser
-  }
-};
 
 export const {
   handlers: { GET, POST },
@@ -62,16 +53,17 @@ export const {
       return true
     },
     async session({ token, session }) {
-      console.log({
-        sessionToken: token
-      })
 
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
 
       if (token.role && session.user) {
-        session.user.role = token.role as UserRole;
+        session.user.role = token.role as ExtendedUser;
+      }
+
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
       }
 
       return session
@@ -84,6 +76,7 @@ export const {
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
 
       return token;
     }
